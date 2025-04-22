@@ -11,17 +11,35 @@ export async function anytoexport(extensions: string[]) {
     return makeComponentName(filename);
   });
 
+  const usedNames = new Set<string>();
+
   let output = "";
 
   files.forEach((file, i) => {
-    let line = `export { default as ${componentNames[i]} } from "./${file}";\n`;
-    if (output.includes(componentNames[i])) {
-      line = `export { default as ${componentNames[i]}Icon } from "./${file}";\n`;
+    let fileName = file;
+    if (fileName.includes(".tsx")) {
+      fileName = fileName.split(".")[0];
     }
+    let exportName = componentNames[i];
+    if (usedNames.has(exportName)) {
+      exportName += "Icon";
+    }
+    usedNames.add(exportName);
+    let line = `export { default as ${exportName} } from "./${fileName}";\n`;
     output += line; 
   });
 
+  const sortedOutput = output
+    .trim()
+    .split("\n")
+    .sort((a, b) => {
+      const lengthDiff = a.length - b.length;
+      if (lengthDiff !== 0) return lengthDiff;
+      return a.localeCompare(b);
+    })
+    .join("\n") + "\n";
+
   const path = `${DIRECTORY}/${OUTPUT_FILE}`;
-  await Bun.write(path, output);
+  await Bun.write(path, sortedOutput);
   console.write("anytoexport - Done! \n");
 }
