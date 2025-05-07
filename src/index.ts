@@ -1,6 +1,7 @@
 import { help, usage } from "./constants";
 import { anytoexport } from "./anytoexport";
 import { svgtotsx } from "./svgtotsx";
+import { organizeImportsInFile, organizeImportsInDirectory } from "./organizeimports";
 
 const command = process.argv[2] || "";
 
@@ -11,16 +12,20 @@ async function main() {
         return await svgtotsx();
       case "-img2export":
         return await anytoexport([".svg", ".jpg", ".jpeg", ".png", ".gif", ".webp", ".tsx"]);
+      case "-sort":
+        return await organizeImportsInFile();
+      case "-sort-dir":
+        return await organizeImportsInDirectory();
       case "-help":
         console.write(help);
-        break
+        break;
       case "-h":
         console.write(help);
-        break
+        break;
       default:
         console.write("Invalid command\n");
         console.write(usage);
-      }
+    }
   } else {
     console.write(usage);
     return 0;
